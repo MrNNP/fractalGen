@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Fractal Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.min.js"></script>
+  </head>
+  <body>
+    Start:
+    <input type="number" id="s" label="Start" value="0" />
+    End:
+    <input type="number" id="e" label="End" value="7" />
+    Delay (ms)
+    <input type="number" id="d" label="Delay" value="0" />
+    (16.66 ms is 60 hz)
+    <br />
+    Click anywhere on the canvas to start.
+    <br />
+    <p>White is 0, Red is 1, Green is 2, Blue is 3</p>
+    <p>
+        Fractal Walk that will yield the mouse position (only valid when starting from 0 or combined with previous data):
+        <p id="output"></p>
+    </p>
+    <script>
+      const x = window.innerHeight - 100;
+      const y = window.innerHeight - 100;
+      let fractalWalk = [];
+
+      function drawFractalUnit(
+        { x, y, w, h },
+        c = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#000000"]
+      ) {
+        stroke(0, 0);
+        fill(c[0]);
+        rect(x, y, h / 2, w / 2);
+
+        fill(c[1]);
+        rect(x + h / 2, y, h / 2, w / 2);
+
+        fill(c[2]);
+        rect(x, y + w / 2, h / 2, w / 2);
+
+        fill(c[3]);
+        rect(x + h / 2, y + w / 2, h / 2, w / 2);
+      }
+
+      function genNthFractalAssembly4dim(n) {
+        n = Math.pow(2, n);
+        let unitsPerRow = x / n;
+        let unitsPerCol = y / n;
+
+        let fractalAssembly = [];
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+            fractalAssembly.push({
+              x: i * unitsPerRow,
+              y: j * unitsPerCol,
+              w: unitsPerRow,
+              h: unitsPerCol,
+            });
+          }
+        }
+        return fractalAssembly;
+      }
+
+      function setup() {
+        const canvas = createCanvas(x, y);
+        background(0);
+        canvas.mouseClicked(mouseDownEvent);
+      }
+
+      async function mouseDownEvent() {
+        fractalWalk = [];
+        let s = document.getElementById("s").value;
+        let e = document.getElementById("e").value;
+        let d = document.getElementById("d").value;
+        for (let i = s; i < e; i++) {
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, d);
+          });
+          drawFractal(i);
+          fractalWalk.push(get(mouseX, mouseY).slice(0, 3));
+        }
+        console.log(fractalWalk);
+        fractalWalk = fractalWalk.map((v) => {
+          console.log(v);
+          //stringify isnt best for perf but simple to write
+          switch (JSON.stringify(v)) {
+            case JSON.stringify([255, 255, 255]):
+              return 0;
+            case JSON.stringify([255, 0, 0]):
+              return 1;
+            case JSON.stringify([0, 255, 0]):
+              return 2;
+            case JSON.stringify([0, 0, 255]):
+              return 3;
+            default:
+              return -1;
+          }
+        });
+
+        document.getElementById("output").innerText = fractalWalk;
+      }
+
+      function drawFractal(n) {
+        let units = genNthFractalAssembly4dim(n);
+        units.forEach((unit) => {
+          drawFractalUnit(unit);
+        });
+      }
+    </script>
+  </body>
+</html>
