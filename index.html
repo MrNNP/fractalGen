@@ -76,6 +76,7 @@
         let s = document.getElementById("s").value;
         let e = document.getElementById("e").value;
         let d = document.getElementById("d").value;
+        document.getElementById("output").innerText = "Measuring...(please do not move the mouse)"
         for (let i = s; i < e; i++) {
           await new Promise((resolve, reject) => {
             setTimeout(resolve, d);
