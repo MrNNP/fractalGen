@@ -70,8 +70,12 @@
         background(0);
         canvas.mouseClicked(mouseDownEvent);
       }
-
+      let started = false;
       async function mouseDownEvent() {
+        if(!started){
+          return;
+        }
+        started = true;
         fractalWalk = [];
         let s = document.getElementById("s").value;
         let e = document.getElementById("e").value;
@@ -103,6 +107,7 @@
         });
 
         document.getElementById("output").innerText = fractalWalk;
+        started = false;
       }
 
       function drawFractal(n) {
