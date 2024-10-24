@@ -15,9 +15,12 @@
     Delay (ms)
     <input type="number" id="d" label="Delay" value="16.66" />
     (16.66 ms is 60 hz)
+    Color Time
+    <input type="number" id="ct" label="Color Time" value="40" />
+    Black Time
+    <input type="number" id="bt" label="Black Time" value="5" />
     <br />
     Click anywhere on the canvas to start.
-    <br />
     <p>White is 0, Red is 1, Green is 2, Blue is 3</p>
     <p>
         Fractal Walk that will yield the mouse position (only valid when starting from 0 or combined with previous data):
@@ -76,6 +79,8 @@
         let s = document.getElementById("s").value;
         let e = document.getElementById("e").value;
         let d = document.getElementById("d").value;
+        let ct = document.getElementById("ct").value;
+        let bt = document.getElementById("bt").value;
         document.getElementById("output").innerText = "Measuring...(please do not move the mouse)"
         for (let i = s; i < e; i++) {
           await new Promise((resolve, reject) => {
@@ -83,6 +88,16 @@
           });
           drawFractal(i);
           fractalWalk.push(get(mouseX, mouseY).slice(0, 3));
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, ct);
+          });
+          if(bt>0){
+
+            background("#000");
+            await new Promise((resolve, reject) => {
+              setTimeout(resolve, bt);
+            });
+          }
         }
         console.log(fractalWalk);
         fractalWalk = fractalWalk.map((v) => {
