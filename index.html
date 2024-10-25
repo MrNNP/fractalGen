@@ -20,8 +20,11 @@
     Black Time
     <input type="number" id="bt" label="Black Time" value="5" />
     <br />
+    <input type="text" id="path" label="Path" value="-" />
+    <button id="draw">Draw</button>
+    <br />
     Click anywhere on the canvas to start.
-    <p>White is 0, Red is 1, Green is 2, Blue is 3</p>
+    <p>Magenta is 0, Red is 1, Green is 2, Blue is 3</p>
     <p>
         Fractal Walk that will yield the mouse position (only valid when starting from 0 or combined with previous data):
         <p id="output"></p>
@@ -30,7 +33,42 @@
       const x = window.innerHeight - 100;
       const y = window.innerHeight - 100;
       let fractalWalk = [];
+      const button = document.getElementById("draw");
+      button.addEventListener("click", ()=>{
+        let path = document.getElementById("path").value;
+        path = path.split(",").map((v)=>parseInt(v));
+        let rectd = {x:0, y:0, w:x, h:y};
+        for(let i = 0; i<path.length; i++){
+          rectd.h/=2;
+          rectd.w/=2;
 
+          switch(path[i]){
+            case 0:
+              // rectd.x/=2;
+              // rectd.y/=2;
+              break;
+              case 1:
+              rectd.x+=rectd.w;
+              // rectd.y/=2;
+              break;
+              case 2:
+                // rectd.x/=2;
+                rectd.y+=rectd.h;
+                // rectd.y/=2;
+                break;
+                // rectd.x/=2;
+                rectd.x+=rectd.w;
+                rectd.y+=rectd.h;
+              // rectd.y/=2;
+              case 3:
+              break;
+          }
+
+        }
+        fill("#ffffff");
+        rect(rectd.x, rectd.y, rectd.w, rectd.h);
+
+      });
       function drawFractalUnit(
         { x, y, w, h },
         c = ["#ff00ff", "#ff0000", "#00ff00", "#0000ff", "#000000"]
