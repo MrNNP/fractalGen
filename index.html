@@ -11,7 +11,7 @@
     Start:
     <input type="number" id="s" label="Start" value="0" />
     End:
-    <input type="number" id="e" label="End" value="7" />
+    <input type="number" id="e" label="End" value="5" />
     Delay (ms)
     <input type="number" id="d" label="Delay" value="0" />
     (16.66 ms is 60 hz)
@@ -113,8 +113,9 @@
       function setup() {
         const canvas = createCanvas(x, y);
         background("fff");
-        stroke(5);
+        stroke(10);
         rect(0,0,x,y);
+        stroke(0);
         canvas.mouseClicked(mouseDownEvent);
       }
 
@@ -153,6 +154,7 @@
             });
           }
         }
+        background("#fff");
         // console.log(fractalWalk);
         fractalWalk = fractalWalk.map((v) => {
           // console.log(v);
