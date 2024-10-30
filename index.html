@@ -13,12 +13,12 @@
     End:
     <input type="number" id="e" label="End" value="7" />
     Delay (ms)
-    <input type="number" id="d" label="Delay" value="16.66" />
+    <input type="number" id="d" label="Delay" value="0" />
     (16.66 ms is 60 hz)
     Color Time
-    <input type="number" id="ct" label="Color Time" value="40" />
+    <input type="number" id="ct" label="Color Time" value="100" />
     Black Time
-    <input type="number" id="bt" label="Black Time" value="5" />
+    <input type="number" id="bt" label="Black Time" value="200" />
     <br />
     <input type="text" id="path" label="Path" value="-" />
     <button id="draw">Draw</button>
@@ -30,45 +30,42 @@
         <p id="output"></p>
     </p>
     <script>
-      const x = window.innerHeight - 100;
-      const y = window.innerHeight - 100;
+      const x = window.innerHeight+0;
+      const y = window.innerHeight+0;
+      window.reference = this;
       let fractalWalk = [];
       const button = document.getElementById("draw");
       button.addEventListener("click", ()=>{
         let path = document.getElementById("path").value;
-        path = path.split(",").map((v)=>parseInt(v));
-        let rectd = {x:0, y:0, w:x, h:y};
-        for(let i = 0; i<path.length; i++){
-          rectd.h/=2;
-          rectd.w/=2;
-
-          switch(path[i]){
-            case 0:
-              // rectd.x/=2;
-              // rectd.y/=2;
-              break;
-              case 1:
-              rectd.x+=rectd.w;
-              // rectd.y/=2;
-              break;
-              case 2:
-                // rectd.x/=2;
-                rectd.y+=rectd.h;
-                // rectd.y/=2;
-                break;
-                // rectd.x/=2;
-                // rectd.y/=2;
-                case 3:
-                rectd.x+=rectd.w;
-                rectd.y+=rectd.h;
-              break;
-          }
-
-        }
-        fill("#ffffff");
-        rect(rectd.x, rectd.y, rectd.w, rectd.h);
+        drawPath(path);
 
       });
+      function drawPath(path) {
+          path = path.split(",").map((v)=>parseInt(v));
+          let rectd = {x:0, y:0, w:x, h:y};
+          for(let i = 0; i<path.length; i++){
+            rectd.h/=2;
+            rectd.w/=2;
+  
+            switch(path[i]){
+                case 1:
+                rectd.x+=rectd.w;
+  
+                break;
+                case 2:
+                  rectd.y+=rectd.h;
+                break;
+  
+                case 3:
+                  rectd.x+=rectd.w;
+                  rectd.y+=rectd.h;
+                break;
+            }
+  
+          }
+          fill("#ffffff");
+          rect(rectd.x, rectd.y, rectd.w, rectd.h);
+        }
       function drawFractalUnit(
         { x, y, w, h },
         c = ["#ff00ff", "#ff0000", "#00ff00", "#0000ff", "#000000"]
@@ -87,8 +84,12 @@
         rect(x + h / 2, y + w / 2, h / 2, w / 2);
       }
 
+      let fractalAssemblies = [];
       function genNthFractalAssembly4dim(n) {
         n = Math.pow(2, n);
+        if(fractalAssemblies[n]?.length){
+          return fractalAssemblies[n];
+        }
         let unitsPerRow = x / n;
         let unitsPerCol = y / n;
 
@@ -103,8 +104,11 @@
             });
           }
         }
+        fractalAssemblies[n] = fractalAssembly;
+        // console.log(fractalAssembly); 
         return fractalAssembly;
       }
+
 
       function setup() {
         const canvas = createCanvas(x, y);
@@ -119,12 +123,22 @@
         let d = document.getElementById("d").value;
         let ct = document.getElementById("ct").value;
         let bt = document.getElementById("bt").value;
-        document.getElementById("output").innerText = "Measuring...(please do not move the mouse)"
+        document.getElementById("output").innerText = "Measuring...(please do not move the mouse)";
+        background("#000");
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, bt);
+        });
+        background("#fff");
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, bt);
+        });
         for (let i = s; i < e; i++) {
-          await new Promise((resolve, reject) => {
+          console.time("drawFractal"+i);
+          await Promise.all([new Promise((resolve, reject) => {
             setTimeout(resolve, d);
-          });
-          drawFractal(i);
+          }),
+          drawFractal(i)]);
+          console.timeEnd("drawFractal"+i);
           fractalWalk.push(get(mouseX, mouseY).slice(0, 3));
           await new Promise((resolve, reject) => {
             setTimeout(resolve, ct);
@@ -137,9 +151,9 @@
             });
           }
         }
-        console.log(fractalWalk);
+        // console.log(fractalWalk);
         fractalWalk = fractalWalk.map((v) => {
-          console.log(v);
+          // console.log(v);
           //stringify isnt best for perf but simple to write
           switch (JSON.stringify(v)) {
             case JSON.stringify([255, 0, 255]):
@@ -158,11 +172,11 @@
         document.getElementById("output").innerText = fractalWalk;
       }
 
-      function drawFractal(n) {
+      async function drawFractal(n) {
         let units = genNthFractalAssembly4dim(n);
-        units.forEach((unit) => {
+        await Promise.all(units.map(async (unit) => {
           drawFractalUnit(unit);
-        });
+        }));
       }
     </script>
   </body>
