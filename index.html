@@ -112,7 +112,7 @@
 
       function setup() {
         const canvas = createCanvas(x, y);
-        background(0);
+        background("fff");
         canvas.mouseClicked(mouseDownEvent);
       }
 
@@ -124,15 +124,15 @@
         let ct = document.getElementById("ct").value;
         let bt = document.getElementById("bt").value;
         document.getElementById("output").innerText = "Measuring...(please do not move the mouse)";
-        background("#000");
-        await new Promise((resolve, reject) => {
-            setTimeout(resolve, bt);
-        });
         background("#fff");
         await new Promise((resolve, reject) => {
             setTimeout(resolve, bt);
         });
         for (let i = s; i < e; i++) {
+        background("#000");
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, bt);
+        });
           console.time("drawFractal"+i);
           await Promise.all([new Promise((resolve, reject) => {
             setTimeout(resolve, d);
